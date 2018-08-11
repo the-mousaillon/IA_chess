@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import './Cell.css';
-
+import {connect} from 'react-redux';
+import Piece from './Piece';
+import './Cell.css'
 
 @connect((store) => {
   return{
-    cellClass: store.board.getCellClass
-  };
+    board: store.board.board
+  }
 })
+
 class Cell extends Component {
   render(){
-    return  <div className = { cellClass(this.props.ColIndex, this.props.rowIndex) }>
+    let cell = this.props.board[this.props.rowindex][this.props.colindex]
+    return  <div className = { cell.color + "Cell" }>
+              <Piece piece = { cell.piece } />
             </div>
   }
 }

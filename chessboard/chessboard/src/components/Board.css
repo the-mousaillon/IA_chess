@@ -1,0 +1,11 @@
+.board{
+  margin-top: 50px;
+  margin-left: 100px;
+  width: 560px;
+  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(8, 70px);
+  grid-template-rows: repeat(8, 70px);
+  grid-auto-flow: row;
+  border: 1px solid black;
+}
