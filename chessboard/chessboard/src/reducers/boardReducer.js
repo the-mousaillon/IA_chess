@@ -87,7 +87,25 @@ var initialState = {
 
 console.log(initialState)
 
+function copyArray(arr){
+  let newtab = []
+  for (let i in arr)
+    newtab.push(Array.from(arr[i]))
+  return newtab
+}
+
+ console.log(initialState)
+
 const boardReducer = (state=initialState, action) => {
+  switch(action.type){
+    case "CELL_CLICKED":{
+      console.log("-------reducer fired !! ------------")
+      console.log(state)
+      return { ...state}
+    }
+      break
+
+  }
   return { ...state }
 }
 
