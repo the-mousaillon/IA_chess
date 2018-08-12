@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './Board.css';
 import Cell from './Cell.js';
-import Piece from './Piece';
 
 @connect((store) => {
   return{

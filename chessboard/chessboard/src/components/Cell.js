@@ -5,13 +5,10 @@ import './Cell.css'
 import { cellClicked } from '../actions/cellActions'
 
 
-/* Le principe est de laisser le componnent Cell déterminer
-son prope état. Il choisirat le type dévenement à dispatcher.
-*/
-
 @connect((store) => {
   return{
-    board: store.board.board
+    board: store.board.board,
+    player: store.board.currentPlayer
   }
 })
 class Cell extends Component {
@@ -22,9 +19,15 @@ class Cell extends Component {
   handleClick(e) {
     let rowindex = this.props.rowindex
     let colindex = this.props.colindex
+    let pos1 = {i: 0, j: 3}
+    let pos2 = {i: rowindex, j: colindex}
+    let action = {type: "ROQUE_KING", payload: {player : "white"}}
+    let cell = this.props.board[this.props.rowindex][this.props.colindex]
     e.preventDefault();
     e.stopPropagation();
-    this.props.dispatch(cellClicked(rowindex, colindex))
+    if (cell.army === this.props.player)
+      alert("playing ok !")
+    this.props.dispatch(action)
   }
   render(){
     let cell = this.props.board[this.props.rowindex][this.props.colindex]
