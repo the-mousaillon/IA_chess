@@ -57,6 +57,7 @@ const gen_default_cell = (y, x, baseplayer) => {
   }
   return {
     color : color,
+    threatened: false,
     army : army,
     piece : piece,
     position : {

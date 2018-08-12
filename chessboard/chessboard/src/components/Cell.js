@@ -31,7 +31,10 @@ class Cell extends Component {
   }
   render(){
     let cell = this.props.board[this.props.rowindex][this.props.colindex]
-    return  <div className = { cell.color + "Cell" } onClick = { this.handleClick }>
+    let threatened = ""
+    if (cell.threatened)
+      threatened = " threatened"
+    return  <div className = { cell.color + "Cell" + threatened} onClick = { this.handleClick }>
               <Piece piece = { cell.piece } />
             </div>
   }

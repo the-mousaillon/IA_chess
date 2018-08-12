@@ -1,11 +1,13 @@
 .whiteCell {
   padding-top: 12px;
   background-color: white;
-  border: 1px solid grey;
 }
 
 .blackCell {
   padding-top: 12px;
   background-color: lightblue;
-  border: 1px solid grey;
+}
+
+.threatened{
+    border: 1px solid red;
 }

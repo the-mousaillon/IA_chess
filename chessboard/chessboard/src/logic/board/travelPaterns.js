@@ -1,25 +1,9 @@
-function availablePlays(player, board, x, y, travelFunc){
-  let travelList = travelFunc(x,y)
-  let opponentArmy
-  switch (player){
-    case "white":
-      opponentArmy = "black"
-      break
-    case "black":
-      opponentArmy = "white"
-      break
-    default:
-  }
-  for (let i in travelList){
-    let coord = travelList[i]
-    let cell = board[coord.i][coord.j]
-    if (coord.i >= 0 && coord.i <= 7 && coord.j >= 0 && coord.j <= 7){
-      if (cell.army === "empty")
-      board[coord.i][coord.j].piece = "moveMarker"
-    }
+function availablePlays(player, board, x, y){
+  if (!illegal_mated(player, board, x, y)){
+    let travelList = get_travelList(player, board, x, y)
+    applyAvailablePlays(travelList)
   }
 }
-
 /////////// Travel patterns /////////////
 
 let default_resctrict_line = [{direction: "t", spread: 8},
@@ -152,23 +136,36 @@ function pawnPattern(player, board, x, y){
   let playList = []
   switch (player){
     case "white":
-      playList.push({i:x+1, j:y, type: "MOVE"})
-      if (x === 1){
+      if (board[x+1][y].army === "empty")
+        playList.push({i:x+1, j:y, type: "MOVE"})
+      if (x === 1 && board[x+2][y].army === "empty"){
         playList.push({i:x+2, j:y, type: "MOVE"})
       }
+      if (board[x+1][y-1].army === "black")
+        playList.push({i:x+1, j:y-1, type: "PRISE"})
+      if (board[x+1][y+1].army === "black")
+        playList.push({i:x+1, j:y+1, type: "PRISE"})
       if (x === 4 && board[x][y-1].army === "black")
-        playList.push({i:x+1, j:y-1, type: "MOVE"})
+        playList.push({i:x+1, j:y-1, type: "PRISE_AU_PASSANT"})
       if (x === 4 && board[x][y+1].army === "black")
         playList.push({i:x+1, j:y+1, type: "PRISE_AU_PASSANT"})
     break
     case "black":
-      playList.push({i:x-1, j:y})
-      if (x === 1){
-        playList.push({i:x-2, j:y})
+      if (board[x-1][y].army === "empty")
+        playList.push({i:x-1, j:y, type: "MOVE"})
+      if (x === 1 && board[x-2][y].army === "empty"){
+        playList.push({i:x-2, j:y, type: "MOVE"})
       }
+      if (board[x-1][y-1].army === "white")
+        playList.push({i:x-1, j:y-1, type: "PRISE"})
+      if (board[x-1][y+1].army === "white")
+        playList.push({i:x-1, j:y+1, type: "PRISE"})
+      if (x === 4 && board[x][y-1].army === "white")
+        playList.push({i:x-1, j:y-1, type: "PRISE_AU_PASSANT"})
+      if (x === 4 && board[x][y+1].army === "white")
+        playList.push({i:x-1, j:y+1, type: "PRISE_AU_PASSANT"})
     break
     default:
   }
-  playList.push()
   return playList
 }
