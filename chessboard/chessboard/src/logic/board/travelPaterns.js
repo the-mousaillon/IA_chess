@@ -1,9 +1,3 @@
-function availablePlays(player, board, x, y){
-  if (!illegal_mated(player, board, x, y)){
-    let travelList = get_travelList(player, board, x, y)
-    applyAvailablePlays(travelList)
-  }
-}
 /////////// Travel patterns /////////////
 
 let default_resctrict_line = [{direction: "t", spread: 8},
@@ -207,4 +201,24 @@ function pawnPattern(player, board, x, y){
     default:
   }
   return playList
+}
+
+/// HANDLER
+
+export function generate_plays(player, board, x, y){
+  switch (board[x][y].piece){
+    case "whitek" : case "blackk":
+      return kingPattern(player, board, x, y)
+    case "whiter" : case "blackr":
+      return rookPattern(player, board, x, y)
+    case ("blackkn") : case "whitekn":
+      return knightPattern(player, board, x, y)
+    case "blackb" : case "whiteb":
+      return bishopPattern(player, board, x, y)
+    case "blackq" : case "whiteq":
+      return queenPattern(player, board, x, y)
+    case "blackp" : case "whitep":
+      return pawnPattern(player, board, x, y)
+    default:
+  }
 }
