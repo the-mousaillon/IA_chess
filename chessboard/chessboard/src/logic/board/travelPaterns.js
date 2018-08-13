@@ -12,26 +12,30 @@ let default_resctrict_line = [{direction: "t", spread: 8},
   {direction: "l", spread: 8}
 ]
 
-function linePattern(x, y, restrict = default_resctrict_line){
+function linePattern(player, board, x, y, restrict = default_resctrict_line){
   let playList = []
   for (let j in restrict){
     let r = restrict[j]
     switch(r.direction){
       case "t":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x,j:y+i})
+          playList.push({i:x,j:y+i,
+            type: get_playType(player, board, x, y+i)})
       break
       case "b":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x,j:y-i})
+          playList.push({i:x,j:y-i,
+            type: get_playType(player, board, x, y-i)})
       break
       case "l":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x-i,j:y})
+          playList.push({i:x-i,j:y,
+            type: get_playType(player, board, x-i, y)})
       break
       case "r":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x+i,j:y})
+          playList.push({i:x+i,j:y,
+            type: get_playType(player, board, x+i, y)})
       break
       default:
 
@@ -46,26 +50,30 @@ let default_resctrict_diag = [{direction: "tr", spread: 8},
   {direction: "bl", spread: 8}
 ]
 
-function diagPattern(x, y, restrict = default_resctrict_diag){
+function diagPattern(player, x, y, board, restrict = default_resctrict_diag){
   let playList = []
   for (let j in restrict){
     let r = restrict[j]
     switch(r.direction){
       case "tr":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x+i,j:y+i})
+          playList.push({i:x+i,j:y+i,
+            type: get_playType(player, board, x+i, y+i)})
       break
       case "tl":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x+i,j:y-i})
+          playList.push({i:x+i,j:y-i,
+            type: get_playType(player, board, x+i, y-i)})
       break
       case "br":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x-i,j:y+i})
+          playList.push({i:x-i,j:y+i,
+            type: get_playType(player, board, x-i, y+i)})
       break
       case "bl":
         for (let i = 0; i<r.spread; i++)
-          playList.push({i:x-i,j:y-i})
+          playList.push({i:x-i,j:y-i,
+            type: get_playType(player, board, x-i, y-i)})
       break
       default:
 
@@ -76,20 +84,49 @@ function diagPattern(x, y, restrict = default_resctrict_diag){
 
 //// Pieces travel patterns
 
-function knightPattern(x, y){
-  let playList = []
-  playList.push({i:x+2, j:y+1})
-  playList.push({i:x+2, j:y-1})
-  playList.push({i:x-2, j:y+1})
-  playList.push({i:x-2, j:y-1})
-  playList.push({i:x+1, j:y+2})
-  playList.push({i:x-1, j:y+2})
-  playList.push({i:x+1, j:y-2})
-  playList.push({i:x-1, j:y-2})
-  return playList
+/* return only for MOVE, PRISE and INVALID */
+function get_playType(player, board, x, y){
+  let opponent
+  if (x < 0 || x > 7 || y < 0 || y > 7)
+    return "INVALID"
+  switch(player){
+    case "white":
+      opponent = "black"
+      break
+    case "black":
+      opponent = "white"
+      break
+    default:
+  }
+  if (board[x][y].army === opponent)
+    return "PRISE"
+  else if (board[x][y].army === "empty")
+    return "MOVE"
 }
 
-function kingPattern(x, y){
+function filterPlayList(playList){
+  let filtedredPlaylist = []
+  for (let i in playList){
+    if (playList[i] !== "INVALID")
+      filtedredPlaylist.push(playList[i])
+    }
+    return filtedredPlaylist
+}
+
+function knightPattern(player, board, x, y){
+  let playList = []
+  playList.push({i:x+2, j:y+1, type: get_playType(player,board,x+2,y+1)})
+  playList.push({i:x+2, j:y-1, type: get_playType(player,board,x+2,y-1)})
+  playList.push({i:x-2, j:y+1, type: get_playType(player,board,x-2,y+1)})
+  playList.push({i:x-2, j:y-1, type: get_playType(player,board,x-2,y-1)})
+  playList.push({i:x+1, j:y+2, type: get_playType(player,board,x+1,y+2)})
+  playList.push({i:x-1, j:y+2, type: get_playType(player,board,x-1,y+2)})
+  playList.push({i:x+1, j:y-2, type: get_playType(player,board,x+1,y-2)})
+  playList.push({i:x-1, j:y-2, type: get_playType(player,board,x-1,y-2)})
+  return filterPlayList(playList)
+}
+
+function kingPattern(player, board, x, y){
   let playList = []
   let restrict_line = [{direction: "r", spread: 1},
     {direction: "l", spread: 1},
@@ -101,31 +138,33 @@ function kingPattern(x, y){
     {direction: "br", spread: 1},
     {direction: "bl", spread: 1}
   ]
-  playList = playList + diagPattern(x, y, restrict_diag) + linePattern(x, y, restrict_line)
+  playList = playList + diagPattern(player, board, x, y, restrict_diag)
+  + linePattern(player, x, y, board, restrict_line)
 // ajout du roque (king and queen side)
   if ((x === 0 && y === 4) || (x === 7 && y === 4)){
-    playList.push({i:x, j:6})
-    playList.push({i:x, j:1})
+    playList.push({i:x, j:6, type: "ROQUE_KING"})
+    playList.push({i:x, j:1, type: "ROQUE_QUEEN"})
   }
+  return filterPlayList(playList)
+}
+
+function bishopPattern(player, board, x, y){
+  let playList = []
+  playList = playList + diagPattern(player, board, x, y)
   return playList
 }
 
-function bishopPattern(x, y){
+function rookPattern(player, board, x, y){
   let playList = []
-  playList = playList + diagPattern(x, y)
-  return playList
+  playList = playList + linePattern(player, board, x, y)
+  return filterPlayList(playList)
 }
 
-function rookPattern(x, y){
+function queenPattern(player, board, x, y){
   let playList = []
-  playList = playList + linePattern(x, y)
-  return playList
-}
-
-function queenPattern(x, y){
-  let playList = []
-  playList = playList + linePattern(x, y) + diagPattern(x,y)
-  return playList
+  playList = playList + linePattern(player, board, x, y)
+  + diagPattern(player, board, x, y)
+  return filterPlayList(playList)
 }
 
 /* pawn is way different than the other piece
