@@ -11,6 +11,7 @@ import Bk from './pieces/Bk'
 import Wk from './pieces/Wk'
 import Bp from './pieces/Bp'
 import Wp from './pieces/Wp'
+import MoveMarker from './pieces/MoveMarker'
 
 class Piece extends Component {
   getPiece = (name) => {
@@ -46,7 +47,7 @@ class Piece extends Component {
       case "whitep":
         return <Wp />
       case "moveMarker":
-        return <Wp />
+        return <MoveMarker />
 
       case "empty":
         return null
