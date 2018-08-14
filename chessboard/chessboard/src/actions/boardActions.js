@@ -35,3 +35,18 @@ export function pawnUpgrade(coord, pieceType){
     }
   }
 }
+
+export function applyPlayList(playList){
+  return {
+    type: "APPLY_PLAYLIST",
+    payload: {
+      playList: playList
+    }
+  }
+}
+
+export function clearPlayList(){
+  return {
+    type: "CLEAR_PLAYLIST"
+  }
+}

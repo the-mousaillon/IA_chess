@@ -6,3 +6,12 @@ export function setCurrentSelected(x,y){
     }
   }
 }
+
+export function setAvailablePlays(playList){
+  return {
+    type: "SET_AVAILABLE_PLAYS",
+    payload:{
+      playList: playList
+    }
+  }
+}
