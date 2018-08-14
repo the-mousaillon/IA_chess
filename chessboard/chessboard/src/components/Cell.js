@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import Piece from './Piece';
 import './Cell.css'
-import { cellClicked } from '../actions/cellActions'
+import { playMiddleware } from '../middleware/playMiddleware'
 
 
 @connect((store) => {
@@ -25,9 +25,7 @@ class Cell extends Component {
     let cell = this.props.board[this.props.rowindex][this.props.colindex]
     e.preventDefault();
     e.stopPropagation();
-    if (cell.army === this.props.player)
-      alert("playing ok !")
-    this.props.dispatch(action)
+    this.props.dispatch(playMiddleware(rowindex, colindex))
   }
   render(){
     let cell = this.props.board[this.props.rowindex][this.props.colindex]

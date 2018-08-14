@@ -44,30 +44,54 @@ let default_resctrict_diag = [{direction: "tr", spread: 8},
   {direction: "bl", spread: 8}
 ]
 
-function diagPattern(player, x, y, board, restrict = default_resctrict_diag){
+function diagPattern(player,board, x, y, restrict = default_resctrict_diag){
   let playList = []
   for (let j in restrict){
     let r = restrict[j]
     switch(r.direction){
       case "tr":
-        for (let i = 0; i<r.spread; i++)
-          playList.push({i:x+i,j:y+i,
-            type: get_playType(player, board, x+i, y+i)})
+      for (let i = 0; i<r.spread; i++){
+        let _type = get_playType(player, board, x+i, y+i)
+        if (_type.type !== "INVALID")
+          playList.push({i:x+i,j:y+i,type: _type})
+        else
+          break
+        if (_type.type === "PRISE")
+          break
+        }
       break
       case "tl":
-        for (let i = 0; i<r.spread; i++)
-          playList.push({i:x+i,j:y-i,
-            type: get_playType(player, board, x+i, y-i)})
+      for (let i = 0; i<r.spread; i++){
+        let _type = get_playType(player, board, x+i, y+i)
+        if (_type.type !== "INVALID")
+          playList.push({i:x+i,j:y+i,type: _type})
+        else
+          break
+        if (_type.type === "PRISE")
+          break
+        }
       break
       case "br":
-        for (let i = 0; i<r.spread; i++)
-          playList.push({i:x-i,j:y+i,
-            type: get_playType(player, board, x-i, y+i)})
+      for (let i = 0; i<r.spread; i++){
+        let _type = get_playType(player, board, x+i, y+i)
+        if (_type.type !== "INVALID")
+          playList.push({i:x+i,j:y+i,type: _type})
+        else
+          break
+        if (_type.type === "PRISE")
+          break
+        }
       break
       case "bl":
-        for (let i = 0; i<r.spread; i++)
-          playList.push({i:x-i,j:y-i,
-            type: get_playType(player, board, x-i, y-i)})
+      for (let i = 0; i<r.spread; i++){
+        let _type = get_playType(player, board, x+i, y+i)
+        if (_type.type !== "INVALID")
+          playList.push({i:x+i,j:y+i,type: _type})
+        else
+          break
+        if (_type.type === "PRISE")
+          break
+        }
       break
       default:
 
@@ -96,12 +120,14 @@ function get_playType(player, board, x, y){
     return "PRISE"
   else if (board[x][y].army === "empty")
     return "MOVE"
+  else
+    return "INVALID"
 }
 
 function filterPlayList(playList){
   let filtedredPlaylist = []
   for (let i in playList){
-    if (playList[i] !== "INVALID")
+    if (playList[i].type !== "INVALID")
       filtedredPlaylist.push(playList[i])
     }
     return filtedredPlaylist
@@ -121,7 +147,7 @@ function knightPattern(player, board, x, y){
 }
 
 function kingPattern(player, board, x, y){
-  let playList = []
+  let playList
   let restrict_line = [{direction: "r", spread: 1},
     {direction: "l", spread: 1},
     {direction: "r", spread: 1},
@@ -132,8 +158,8 @@ function kingPattern(player, board, x, y){
     {direction: "br", spread: 1},
     {direction: "bl", spread: 1}
   ]
-  playList = playList + diagPattern(player, board, x, y, restrict_diag)
-  + linePattern(player, x, y, board, restrict_line)
+  playList = diagPattern(player, board, x, y, restrict_diag).concat(
+    linePattern(player,board, x, y, restrict_line))
 // ajout du roque (king and queen side)
   if ((x === 0 && y === 4) || (x === 7 && y === 4)){
     playList.push({i:x, j:6, type: "ROQUE_KING"})
@@ -143,21 +169,21 @@ function kingPattern(player, board, x, y){
 }
 
 function bishopPattern(player, board, x, y){
-  let playList = []
-  playList = playList + diagPattern(player, board, x, y)
-  return playList
+  let playList
+  playList = diagPattern(player, board, x, y)
+  return filterPlayList(playList)
 }
 
 function rookPattern(player, board, x, y){
-  let playList = []
-  playList = playList + linePattern(player, board, x, y)
+  let playList
+  playList = linePattern(player, board, x, y)
   return filterPlayList(playList)
 }
 
 function queenPattern(player, board, x, y){
-  let playList = []
-  playList = playList + linePattern(player, board, x, y)
-  + diagPattern(player, board, x, y)
+  let playList
+  playList = linePattern(player, board, x, y).concat(
+    diagPattern(player, board, x, y))
   return filterPlayList(playList)
 }
 
@@ -169,34 +195,34 @@ function pawnPattern(player, board, x, y){
   let playList = []
   switch (player){
     case "white":
+      if (board[x-1][y].army === "empty")
+        playList.push({i:x+1, j:y, type: "MOVE"})
+      if (x === 6 && board[x-2][y].army === "empty"){
+        playList.push({i:x+2, j:y, type: "MOVE"})
+      }
+      if (board[x-1][y-1].army === "black")
+        playList.push({i:x-1, j:y-1, type: "PRISE"})
+      if (board[x-1][y+1].army === "black")
+        playList.push({i:x-1, j:y+1, type: "PRISE"})
+      if (x === 4 && board[x][y-1].army === "black")
+        playList.push({i:x-1, j:y-1, type: "PRISE_AU_PASSANT"})
+      if (x === 4 && board[x][y+1].army === "black")
+        playList.push({i:x-1, j:y+1, type: "PRISE_AU_PASSANT"})
+    break
+    case "black":
       if (board[x+1][y].army === "empty")
         playList.push({i:x+1, j:y, type: "MOVE"})
       if (x === 1 && board[x+2][y].army === "empty"){
         playList.push({i:x+2, j:y, type: "MOVE"})
       }
-      if (board[x+1][y-1].army === "black")
+      if (board[x+1][y-1].army === "white")
         playList.push({i:x+1, j:y-1, type: "PRISE"})
-      if (board[x+1][y+1].army === "black")
+      if (board[x+1][y+1].army === "white")
         playList.push({i:x+1, j:y+1, type: "PRISE"})
-      if (x === 4 && board[x][y-1].army === "black")
-        playList.push({i:x+1, j:y-1, type: "PRISE_AU_PASSANT"})
-      if (x === 4 && board[x][y+1].army === "black")
-        playList.push({i:x+1, j:y+1, type: "PRISE_AU_PASSANT"})
-    break
-    case "black":
-      if (board[x-1][y].army === "empty")
-        playList.push({i:x-1, j:y, type: "MOVE"})
-      if (x === 1 && board[x-2][y].army === "empty"){
-        playList.push({i:x-2, j:y, type: "MOVE"})
-      }
-      if (board[x-1][y-1].army === "white")
-        playList.push({i:x-1, j:y-1, type: "PRISE"})
-      if (board[x-1][y+1].army === "white")
-        playList.push({i:x-1, j:y+1, type: "PRISE"})
       if (x === 4 && board[x][y-1].army === "white")
-        playList.push({i:x-1, j:y-1, type: "PRISE_AU_PASSANT"})
+        playList.push({i:x+1, j:y-1, type: "PRISE_AU_PASSANT"})
       if (x === 4 && board[x][y+1].army === "white")
-        playList.push({i:x-1, j:y+1, type: "PRISE_AU_PASSANT"})
+        playList.push({i:x+1, j:y+1, type: "PRISE_AU_PASSANT"})
     break
     default:
   }

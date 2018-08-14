@@ -153,7 +153,30 @@ function roqueKing(board, player){
 }
 
 
+function applyPlayList(board, playList){
+  let new_board = copyArray(board)
+  for (let i in playList){
+      let coord = playList[i]
+      if (board[coord.x][coord.y].army === "empty")
+        new_board[coord.x][coord.y].piece = "moveMarker"
+      else
+        new_board[coord.x][coord.y].threatened = true
+  }
+  return new_board
+}
 
+function clearPlayList(board, playList){
+  let new_board = copyArray(board)
+  for (let i=0; i<8; i++){
+    for (let j=0; i<8; j++){
+      if (board[i][j].threatened)
+        new_board[i][j].threatened = false
+      if (board[i][j].piece === "moveMarker")
+        new_board[i][j].piece = "empty"
+    }
+  }
+  return new_board
+}
 
 const boardReducer = (state=initialState, action) => {
   let new_board;
@@ -176,6 +199,14 @@ const boardReducer = (state=initialState, action) => {
 
     case "PAWN_UPGRADE":
       new_board = movePiece(state.board, action.payload.pos1, action.payload.pos2)
+      return { ...state, board: new_board }
+
+    case "APPLY_PLAYLIST":
+      new_board = applyPlayList(state.board, action.payload.playList)
+      return { ...state, board: new_board }
+
+    case "CLEAR_PLAYLIST":
+      new_board = clearPlayList(state.board)
       return { ...state, board: new_board }
 
     default:
