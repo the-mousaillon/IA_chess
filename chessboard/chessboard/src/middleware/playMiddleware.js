@@ -1,5 +1,5 @@
 import { setCurrentSelected, setAvailablePlays } from '../actions/gameActions'
-import { applyPlayList, clearPlayList, movePiece } from '../actions/boardActions'
+import { applyPlayList, clearPlayList, movePiece, roqueKing, roqueQueen } from '../actions/boardActions'
 import { generate_plays } from '../logic/board/travelPaterns'
 
 function findPlay(x, y, playList){
@@ -11,12 +11,17 @@ function findPlay(x, y, playList){
   return -1
 }
 
-function makePlay(current, play){
+function makePlay(player, current, play){
   switch(play.type){
-    case "MOVE":
+    case "MOVE": case "PRISE":
       let pos2 = {i: play.i, j: play.j}
       let pos1 = {i: current.x, j: current.y}
       return movePiece(pos1, pos2)
+    case "ROQUE_KING":
+      return roqueKing(player)
+    case "ROQUE_QUEEN":
+      return roqueQueen(player)
+
     default:
   }
 }
@@ -36,11 +41,11 @@ export function playMiddleware(x,y){
       dispatch(setAvailablePlays(playList))
       dispatch(applyPlayList(playList))
     }
-    else if (board[x][y].army === "empty"){
+    else if (board[x][y].army === "empty" || board[x][y].army === "black"){
       let index = findPlay(x, y, playList)
       console.log(index)
       if (index !== -1)
-        dispatch(makePlay(currentSelected, playList[index]))
+        dispatch(makePlay(player, currentSelected, playList[index]))
       dispatch(clearPlayList())
     }
   }

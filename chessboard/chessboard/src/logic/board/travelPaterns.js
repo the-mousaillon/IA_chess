@@ -1,5 +1,7 @@
 /////////// Travel patterns /////////////
 
+import { checkForMate } from '../../middleware/playValidityMiddleware'
+
 let default_resctrict_line = [{direction: "t", spread: 7},
   {direction: "b", spread: 7},
   {direction: "r", spread: 7},
@@ -194,7 +196,45 @@ function queenPattern(player, board, x, y){
 /* pawn is way different than the other piece
 that's why we can't use the same approach as the others*/
 
+function pawnTake(player, board, x, y){
+  let playList = []
+  switch(player){
+  case "white":
+    if (x-1 >= 0){
+      if (y-1 > 0){
+        if (board[x-1][y-1].army === "black")
+            playList.push({i:x-1,j:y-1,type: "PRISE"})
+      }
+      if (y+1 > 0){
+        if (board[x-1][y+1].army === "black")
+            playList.push({i:x-1,j:y+1,type: "PRISE"})
+      }
+    }
+    return playList
+  case "black":
+    if (x+1 < 8){
+      if (y-1 > 0){
+        if (board[x+1][y-1].army === "black")
+            playList.push({i:x-1,j:y-1,type: "PRISE"})
+      }
+      if (y+1 > 0){
+        if (board[x+1][y+1].army === "black")
+            playList.push({i:x-1,j:y+1,type: "PRISE"})
+      }
+    }
+    return playList
+  default:
+  }
+}
 
+function pawnFilter(playList){
+let filtered = []
+for (let i in playList){
+  if (playList[i].type !== "PRISE")
+    filtered.push(playList[i])
+  }
+  return filtered
+}
 function pawnPattern(player, board, x, y){
   let playList = []
   let top1 = [{direction: "t", spread: 1}]
@@ -207,16 +247,17 @@ function pawnPattern(player, board, x, y){
         playList = playList.concat(linePattern(player, board, x, y, top2))
       else
         playList = playList.concat(linePattern(player, board, x, y, top1))
+
     break
     case "black":
-    if (x === 6)
+    if (x === 1)
       playList = playList.concat(linePattern(player, board, x, y, bot2))
     else
       playList = playList.concat(linePattern(player, board, x, y, bot1))
     break
     default:
   }
-  return filterPlayList(playList)
+  return pawnFilter(filterPlayList(playList)).concat(pawnTake(player, board, x, y))
 }
 
 /// HANDLER
