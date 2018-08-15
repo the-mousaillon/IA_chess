@@ -15,7 +15,6 @@ function linePattern(player, board, x, y, restrict = default_resctrict_line){
     switch(r.direction){
       case "t":
       for (let i = 1; i<=r.spread; i++){
-        console.log("Applying diagpattern to --> ", x-i, " | ", y+i)
         let cond = iterPattern(player, board, x-i, y, playList)
         if (cond === "BREAK")
           break
@@ -73,7 +72,6 @@ function diagPattern(player,board, x, y, restrict = default_resctrict_diag){
     switch(r.direction){
       case "tr":
       for (let i = 1; i<=r.spread; i++){
-        console.log("Applying diagpattern to --> ", x-i, " | ", y+i)
         let cond = iterPattern(player, board, x-i, y+i, playList)
         if (cond === "BREAK")
           break

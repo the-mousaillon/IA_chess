@@ -38,7 +38,6 @@ const gen_default_cell = (y, x, baseplayer) => {
         piece = prefix + "k"
     }
     else {
-      console.log("pawn")
       piece = prefix + "p"
     }
   }
@@ -89,14 +88,21 @@ var initialState = {
 
 
 //// REDUCER FUNCTIONS FOR HANDELING GAME EVENTS ////
-function copyArray(arr){
+
+// this one turned out to be pretty usefull so I'll export it ^^
+export function copyArray(arr){
   let newtab = []
-  for (let i in arr)
-    newtab.push(Array.from(arr[i]))
+  let objectTab = []
+  for (let i in arr){
+    for (let j in arr[i])
+      objectTab.push({...arr[i][j]})
+    newtab.push(Array.from(objectTab))
+    objectTab = []
+  }
   return newtab
 }
 
-function movePiece(board, pos1, pos2){
+export function movePiece(board, pos1, pos2){
   let new_board = copyArray(board)
   new_board[pos2.i][pos2.j].piece = new_board[pos1.i][pos1.j].piece
   new_board[pos2.i][pos2.j].army = new_board[pos1.i][pos1.j].army
@@ -106,7 +112,7 @@ function movePiece(board, pos1, pos2){
 }
 
 
-function roqueQueen(board, player){
+export function roqueQueen(board, player){
   let new_board = copyArray(board)
   let rowindex
   switch(player){
@@ -129,7 +135,7 @@ function roqueQueen(board, player){
   return new_board
 }
 
-function roqueKing(board, player){
+export function roqueKing(board, player){
   let new_board = copyArray(board)
   let rowindex
   switch(player){
@@ -157,7 +163,6 @@ function applyPlayList(board, playList){
   let new_board = copyArray(board)
   for (let i in playList){
       let play = playList[i]
-      console.log(play)
       if (board[play.i][play.j].army === "empty")
         new_board[play.i][play.j].piece = "moveMarker"
       else
@@ -183,11 +188,8 @@ const boardReducer = (state=initialState, action) => {
   let new_board;
   switch(action.type){
     case "CELL_CLICKED":
-      console.log("-------reducer fired !! ------------")
-      console.log(state)
       return { ...state}
     case "MOVE_PIECE":
-      console.log(action)
       new_board = movePiece(state.board, action.payload.pos1, action.payload.pos2)
       return { ...state, board: new_board }
 

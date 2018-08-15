@@ -1,10 +1,10 @@
 import { setCurrentSelected, setAvailablePlays } from '../actions/gameActions'
 import { applyPlayList, clearPlayList, movePiece, roqueKing, roqueQueen } from '../actions/boardActions'
 import { generate_plays } from '../logic/board/travelPaterns'
+import { checkForMate } from './playValidityMiddleware'
 
 function findPlay(x, y, playList){
   for (let i in playList){
-    console.log(playList[i])
     if (playList[i].i === x && playList[i].j === y)
       return i
   }
@@ -33,7 +33,6 @@ export function playMiddleware(x,y){
     let player = _store.game.currentPlayer
     let currentSelected = _store.game.currentSelectedCell
     let playList = _store.game.availablePlays
-    console.log(playList)
     if (board[x][y].army === player){
       dispatch(setCurrentSelected(x,y))
       playList = generate_plays(player, board, x, y)
@@ -43,9 +42,10 @@ export function playMiddleware(x,y){
     }
     else if (board[x][y].army === "empty" || board[x][y].army === "black"){
       let index = findPlay(x, y, playList)
-      console.log(index)
-      if (index !== -1)
+      if (index !== -1){
         dispatch(makePlay(player, currentSelected, playList[index]))
+        console.log(checkForMate(player, board, playList[index]))
+      }
       dispatch(clearPlayList())
     }
   }
