@@ -64,14 +64,13 @@ function diagonalCheck(player, board, king){
       return true
     else if (board[i][j].army !== player && board[i][j].army !== "empty")
       return diagPieces(player, board[i][j], dist(king, i, j))
-    else{
+    else
       return sub(player, board, i+di, j+dj, di, dj, king)
-    }
   }
   return (sub(player, board, king.x, king.y, 1, 1, king) &&
-  sub(player, board, king.x, king.y, 1, -1, king) &&
-  sub(player, board, king.x, king.y, -1, 1, king) &&
-  sub(player, board, king.x, king.y, -1, -1, king))
+  sub(player, board, king.x+1, king.y-1, 1, -1, king) &&
+  sub(player, board, king.x-1, king.y+1, -1, 1, king) &&
+  sub(player, board, king.x-1, king.y-1, -1, -1, king))
 }
 
 
@@ -83,14 +82,13 @@ function lineCheck(player, board, king){
       return true
     else if (board[i][j].army !== player && board[i][j].army !== "empty")
       return linePieces(player, board[i][j], dist(king, i, j))
-    else{
+    else
       return sub(player, board, i+di, j+dj, di, dj, king)
-    }
   }
-  return (sub(player, board, king.x, king.y, 0, 1, king) &&
-  sub(player, board, king.x, king.y, 0, -1, king) &&
-  sub(player, board, king.x, king.y, -1, 0, king) &&
-  sub(player, board, king.x, king.y, +1, 0, king))
+  return (sub(player, board, king.x, king.y+1, 0, 1, king) &&
+  sub(player, board, king.x, king.y-1, 0, -1, king) &&
+  sub(player, board, king.x-1, king.y, -1, 0, king) &&
+  sub(player, board, king.x+1, king.y, +1, 0, king))
 }
 
 function locateKing(player, board){
@@ -102,14 +100,14 @@ function locateKing(player, board){
     }
 }
 
-
 export function checkForMate(player, board, play){
   let current = store.getState().game.currentSelectedCell
   let emulatedBoard = emulatePlay(player, board, current, play)
-  let king = locateKing(player, board)
-  console.log("da king --> ", king, board[king.x][king.y])
+  let king = locateKing(player, emulatedBoard)
+  console.log("da king --> ", king)
   let check_diag = diagonalCheck(player, emulatedBoard, king)
   let check_line = lineCheck(player, emulatedBoard, king)
+  console.log("line --> ",check_line, " diag --> ", check_diag)
   return check_diag && check_line
 }
 

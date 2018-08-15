@@ -43,8 +43,8 @@ export function playMiddleware(x,y){
     else if (board[x][y].army === "empty" || board[x][y].army === "black"){
       let index = findPlay(x, y, playList)
       if (index !== -1){
+        console.log(checkForMate(player, getState().board.board, playList[index]))
         dispatch(makePlay(player, currentSelected, playList[index]))
-        console.log(checkForMate(player, board, playList[index]))
       }
       dispatch(clearPlayList())
     }
