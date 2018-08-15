@@ -1,5 +1,6 @@
-import { movePiece, roqueKing, roqueQueen } from '../reducers/boardReducer'
-import store from '../store'
+import { movePiece, roqueKing, roqueQueen } from '../../reducers/boardReducer'
+import { knightPattern } from './travelPatternsOld'
+import store from '../../store'
 
 function dist(king, i, j){
   if (king.x !== i && king.y !== j)
@@ -17,9 +18,9 @@ function emulatePlay(player, board, current, play){
       let pos1 = {i: current.x, j: current.y}
       return movePiece(board, pos1, pos2)
     case "ROQUE_KING":
-      return roqueKing(player, board)
+      return roqueKing(board, player)
     case "ROQUE_QUEEN":
-      return roqueQueen(player, board)
+      return roqueQueen(board, player)
     default:
   }
 }
@@ -100,6 +101,17 @@ function locateKing(player, board){
     }
 }
 
+function knightCheck(player, board, king){
+  let opponent = get_opponent(player)
+  let playList = knightPattern(player, board, king.x, king.y)
+  for (let i in playList){
+    let play = playList[i]
+    if (board[play.i][play.j].piece === opponent + "kn")
+      return false
+    }
+  return true
+}
+
 export function checkForMate(player, board, play){
   let current = store.getState().game.currentSelectedCell
   let emulatedBoard = emulatePlay(player, board, current, play)
@@ -107,10 +119,47 @@ export function checkForMate(player, board, play){
   console.log("da king --> ", king)
   let check_diag = diagonalCheck(player, emulatedBoard, king)
   let check_line = lineCheck(player, emulatedBoard, king)
+  let check_knight = knightCheck(player, emulatedBoard, king)
   console.log("line --> ",check_line, " diag --> ", check_diag)
-  return check_diag && check_line
+  return check_diag && check_line && check_knight
 }
 
 export function canRoque(player, board, play){
+  let condition
+  if (play.type === "ROQUE_KING")
+    condition = store.getState().game.playerProps[player].canRoque.king
+  else
+    condition = store.getState().game.playerProps[player].canRoque.queen
+  if (!condition)
+    return false
 
+  switch(player){
+    case "white":
+      if (play.type === "ROQUE_KING"){
+        if (board[7][6].army === "empty" && board[7][5].army === "empty")
+          return true
+        else
+          return false
+      }
+      else{
+        if (board[7][3].army === "empty" && board[7][2].army === "empty" && board[7][1].army === "empty")
+          return true
+        else
+          return false
+      }
+    case "black":
+    if (play.type === "ROQUE_KING"){
+      if (board[0][6].army === "empty" && board[0][5].army === "empty")
+        return true
+      else
+        return false
+    }
+    else{
+      if (board[0][3].army === "empty" && board[0][2].army === "empty" && board[0][1].army === "empty")
+        return true
+      else
+        return false
+    }
+    default:
+  }
 }

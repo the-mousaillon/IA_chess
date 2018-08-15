@@ -1,7 +1,6 @@
-import { setCurrentSelected, setAvailablePlays } from '../actions/gameActions'
+import { setCurrentSelected, setAvailablePlays, nexTurn } from '../actions/gameActions'
 import { applyPlayList, clearPlayList, movePiece, roqueKing, roqueQueen } from '../actions/boardActions'
-import { generate_plays } from '../logic/board/travelPaterns'
-import { checkForMate } from './playValidityMiddleware'
+import { generate_plays } from '../logic/board/travelPatterns'
 
 function findPlay(x, y, playList){
   for (let i in playList){
@@ -36,6 +35,7 @@ export function playMiddleware(x,y){
     if (board[x][y].army === player){
       dispatch(setCurrentSelected(x,y))
       playList = generate_plays(player, board, x, y)
+      console.log(playList)
       dispatch(clearPlayList())
       dispatch(setAvailablePlays(playList))
       dispatch(applyPlayList(playList))
@@ -43,8 +43,8 @@ export function playMiddleware(x,y){
     else if (board[x][y].army === "empty" || board[x][y].army === "black"){
       let index = findPlay(x, y, playList)
       if (index !== -1){
-        console.log(checkForMate(player, getState().board.board, playList[index]))
         dispatch(makePlay(player, currentSelected, playList[index]))
+        dispatch(nexTurn())
       }
       dispatch(clearPlayList())
     }

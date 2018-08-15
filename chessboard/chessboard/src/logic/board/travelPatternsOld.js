@@ -1,7 +1,5 @@
 /////////// Travel patterns /////////////
 
-import { checkForMate } from '../../middleware/playValidityMiddleware'
-
 let default_resctrict_line = [{direction: "t", spread: 7},
   {direction: "b", spread: 7},
   {direction: "r", spread: 7},
@@ -137,7 +135,7 @@ function filterPlayList(playList){
     return filtedredPlaylist
 }
 
-function knightPattern(player, board, x, y){
+export function knightPattern(player, board, x, y){
   let playList = []
   playList.push({i:x+2, j:y+1, type: get_playType(player,board,x+2,y+1)})
   playList.push({i:x+2, j:y-1, type: get_playType(player,board,x+2,y-1)})
@@ -203,7 +201,7 @@ function pawnTake(player, board, x, y){
         if (board[x-1][y-1].army === "black")
             playList.push({i:x-1,j:y-1,type: "PRISE"})
       }
-      if (y+1 > 0){
+      if (y+1 < 8){
         if (board[x-1][y+1].army === "black")
             playList.push({i:x-1,j:y+1,type: "PRISE"})
       }

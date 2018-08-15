@@ -15,3 +15,9 @@ export function setAvailablePlays(playList){
     }
   }
 }
+
+export function nexTurn(){
+  return {
+    type: "NEXT_TURN"
+  }
+}

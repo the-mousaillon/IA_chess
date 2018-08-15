@@ -1,14 +1,21 @@
 const initialState = {
   gamestate: "START",
+  turn: 1,
   availablePlays: [],
   currentPlayer: "white",
   currentSelectedCell: {},
   playerProps: {
     white:{
-      availablePlays: []
+      isChecked: false,
+      canRoque: {king :true, queen: true},
+      verticalInfo: {position: "bot", multiplier: -1},
+      enPassant: null
     },
     black:{
-      availablePlays: []
+      isChecked: false,
+      canRoque: {king :true, queen: true},
+      verticalInfo: {position: "top", multiplier: 1},
+      enPassant: null
     }
   }
 }
@@ -26,7 +33,9 @@ const gameReducer = (state=initialState, action) => {
         opponent = "black"
       else
         opponent = "white"
-      return {...state, currentPlayer: opponent}
+      let newprops = {...state.playerProps }
+      newprops[state.currentPlayer].enPassant = null
+      return {...state, currentPlayer: opponent, turn: state.turn+1, playerProps: newprops}
     default:
       return { ...state }
   }
