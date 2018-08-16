@@ -37,6 +37,7 @@ function get_opponent(player){
 
 function diagPieces(player, cell, kingDist){
   let opponent = get_opponent(player)
+  console.log("KinhkingDist", kingDist)
   if (cell.piece === opponent + "b" || cell.piece === opponent + "q")
     return false
   else if ((cell.piece === opponent + "p" || cell.piece === opponent + "k") && kingDist === 1)
@@ -68,7 +69,7 @@ function diagonalCheck(player, board, king){
     else
       return sub(player, board, i+di, j+dj, di, dj, king)
   }
-  return (sub(player, board, king.x, king.y, 1, 1, king) &&
+  return (sub(player, board, king.x+1, king.y+1, 1, 1, king) &&
   sub(player, board, king.x+1, king.y-1, 1, -1, king) &&
   sub(player, board, king.x-1, king.y+1, -1, 1, king) &&
   sub(player, board, king.x-1, king.y-1, -1, -1, king))

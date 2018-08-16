@@ -134,12 +134,11 @@ export function pawnPattern(player, board, x, y){
         playList.push({i: x+verticalInfo.multiplier, j: y+1, type: "PRISE_EN_PASSANT"})
     }
   }
-  console.log("pawn ")
   return filterMate(player, board, playList)
 }
 
 function roquePattern(player, board, x, y, playList){
-
+  
 }
 
 export function kingPattern(player, board, x, y){
