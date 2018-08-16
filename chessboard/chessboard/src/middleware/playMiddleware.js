@@ -10,6 +10,13 @@ function findPlay(x, y, playList){
   return -1
 }
 
+function get_opponent(player){
+  if (player === "white")
+    return "black"
+  else
+    return "white"
+}
+
 function makePlay(player, current, play){
   switch(play.type){
     case "MOVE": case "PRISE":
@@ -30,7 +37,13 @@ export function playMiddleware(x,y){
     let _store = getState()
     let board = _store.board.board
     let player = _store.game.currentPlayer
+    if (board[x][y].army === player){
+      console.log("dispatched !!!")
+      dispatch(setCurrentSelected(x,y))
+    }
+    _store = getState()
     let currentSelected = _store.game.currentSelectedCell
+    let currentCell = board[currentSelected.x][currentSelected.y]
     let playList = _store.game.availablePlays
     if (board[x][y].army === player){
       dispatch(setCurrentSelected(x,y))
@@ -40,7 +53,7 @@ export function playMiddleware(x,y){
       dispatch(setAvailablePlays(playList))
       dispatch(applyPlayList(playList))
     }
-    else if (board[x][y].army === "empty" || board[x][y].army === "black"){
+    else if ((board[x][y].army === "empty" || board[x][y].army === get_opponent(player)) && currentCell.army === player){
       let index = findPlay(x, y, playList)
       if (index !== -1){
         dispatch(makePlay(player, currentSelected, playList[index]))

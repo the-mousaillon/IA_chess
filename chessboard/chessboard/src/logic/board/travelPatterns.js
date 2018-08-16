@@ -88,17 +88,17 @@ function diagPattern(player, board, x, y){
 
 function pawntravel(player, board, x, y, verticalInfo, playList){
   let opponent = get_opponent(player)
-  if (board[x+verticalInfo.multiplier][y].amry === "empty")
+  if (board[x+verticalInfo.multiplier][y].army === "empty")
     playList.push({i:x+verticalInfo.multiplier, j:y, type: "MOVE"})
 
   if (y<7){
-    if (board[x+verticalInfo.multiplier][y+1].amry === opponent)
-      playList.push({i:x+verticalInfo.multiplier, j:y, type: "PRISE"})
+    if (board[x+verticalInfo.multiplier][y+1].army === opponent)
+      playList.push({i:x+verticalInfo.multiplier, j:y+1, type: "PRISE"})
   }
 
   if (y>0){
-    if (board[x+verticalInfo.multiplier][y-1].amry === opponent)
-      playList.push({i:x-verticalInfo.multiplier, j:y, type: "PRISE"})
+    if (board[x+verticalInfo.multiplier][y-1].army === opponent)
+      playList.push({i:x+verticalInfo.multiplier, j:y-1, type: "PRISE"})
   }
 }
 
@@ -121,7 +121,7 @@ export function pawnPattern(player, board, x, y){
 
   pawntravel(player, board, x, y, verticalInfo, playList)
 
-  if (x === bigStartLine && board[x+2*verticalInfo.multiplier][y].army === "empty")
+  if (x === bigStartLine && board[x+2*verticalInfo.multiplier][y].army === "empty" && board[x+verticalInfo.multiplier][y].army === "empty")
     playList.push({i:x+2*verticalInfo.multiplier, j:y, type: "MOVE"})
 
   if (x === enPassantLine && enPassantPos !== null){
@@ -138,16 +138,22 @@ export function pawnPattern(player, board, x, y){
   return filterMate(player, board, playList)
 }
 
+function roquePattern(player, board, x, y, playList){
+
+}
+
 export function kingPattern(player, board, x, y){
   let playList = []
-  playList.push({i:x+1, j:y, type: get_playType(player,board,x+2,y+1)})
-  playList.push({i:x+1, j:y+1, type: get_playType(player,board,x+2,y-1)})
-  playList.push({i:x+1, j:y-1, type: get_playType(player,board,x-2,y+1)})
-  playList.push({i:x-1, j:y, type: get_playType(player,board,x-2,y-1)})
-  playList.push({i:x-1, j:y+1, type: get_playType(player,board,x+1,y+2)})
-  playList.push({i:x-1, j:y-1, type: get_playType(player,board,x-1,y+2)})
-  playList.push({i:x, j:y+1, type: get_playType(player,board,x+1,y-2)})
-  playList.push({i:x, j:y-1, type: get_playType(player,board,x-1,y-2)})
+  playList.push({i:x+1, j:y, type: get_playType(player,board,x+1,y)})
+  playList.push({i:x+1, j:y+1, type: get_playType(player,board,x+1,y+1)})
+  playList.push({i:x+1, j:y-1, type: get_playType(player,board,x+1,y-1)})
+  playList.push({i:x-1, j:y, type: get_playType(player,board,x-1,y)})
+  playList.push({i:x-1, j:y+1, type: get_playType(player,board,x-1,y+1)})
+  playList.push({i:x-1, j:y-1, type: get_playType(player,board,x-1,y-1)})
+  playList.push({i:x, j:y+1, type: get_playType(player,board,x,y+1)})
+  playList.push({i:x, j:y-1, type: get_playType(player,board,x,y-1)})
+  roquePattern(player, board, x, y, playList)
+  return filterMate(player, board, filterPlayList(playList))
 }
 
 

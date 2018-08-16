@@ -83,7 +83,6 @@ var initial_board = gen_default_board("white")
 
 var initialState = {
   board: initial_board,
-  currentPlayer: "white"
 }
 
 
