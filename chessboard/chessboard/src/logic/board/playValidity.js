@@ -1,4 +1,4 @@
-import { movePiece, roqueKing, roqueQueen } from '../../reducers/boardReducer'
+import { movePiece, roqueKing, roqueQueen, priseEnPassant } from '../../reducers/boardReducer'
 import { knightPattern } from './travelPatternsOld'
 import store from '../../store'
 
@@ -12,15 +12,17 @@ function dist(king, i, j){
 }
 
 function emulatePlay(player, board, current, play){
+  let pos2 = {i: play.i, j: play.j}
+  let pos1 = {i: current.x, j: current.y}
   switch(play.type){
-    case "MOVE": case "PRISE":
-      let pos2 = {i: play.i, j: play.j}
-      let pos1 = {i: current.x, j: current.y}
+    case "MOVE": case "PRISE": case "BIGSTART":
       return movePiece(board, pos1, pos2)
     case "ROQUE_KING":
       return roqueKing(board, player)
     case "ROQUE_QUEEN":
       return roqueQueen(board, player)
+    case "PRISE_EN_PASSANT":
+      return priseEnPassant(board, pos1, pos2)
     default:
   }
 }
@@ -125,18 +127,19 @@ export function checkForMate(player, board, play){
   return check_diag && check_line && check_knight
 }
 
-export function canRoque(player, board, play){
+export function canRoque(player, board, side){
   let condition
-  if (play.type === "ROQUE_KING")
+  let position = store.getState().game.playerProps[player].verticalInfo.position
+  if (side === "ROQUE_KING")
     condition = store.getState().game.playerProps[player].canRoque.king
   else
     condition = store.getState().game.playerProps[player].canRoque.queen
   if (!condition)
     return false
 
-  switch(player){
-    case "white":
-      if (play.type === "ROQUE_KING"){
+  switch(position){
+    case "bot":
+      if (side === "ROQUE_KING"){
         if (board[7][6].army === "empty" && board[7][5].army === "empty")
           return true
         else
@@ -148,8 +151,8 @@ export function canRoque(player, board, play){
         else
           return false
       }
-    case "black":
-    if (play.type === "ROQUE_KING"){
+    case "top":
+    if (side === "ROQUE_KING"){
       if (board[0][6].army === "empty" && board[0][5].army === "empty")
         return true
       else

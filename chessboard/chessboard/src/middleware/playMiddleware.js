@@ -1,5 +1,5 @@
-import { setCurrentSelected, setAvailablePlays, nexTurn } from '../actions/gameActions'
-import { applyPlayList, clearPlayList, movePiece, roqueKing, roqueQueen } from '../actions/boardActions'
+import { setCurrentSelected, setAvailablePlays, nexTurn, setEnPassant } from '../actions/gameActions'
+import { applyPlayList, clearPlayList, movePiece, roqueKing, roqueQueen, priseEnPassant } from '../actions/boardActions'
 import { generate_plays } from '../logic/board/travelPatterns'
 
 function findPlay(x, y, playList){
@@ -17,17 +17,26 @@ function get_opponent(player){
     return "white"
 }
 
-function makePlay(player, current, play){
+function makePlay(player, current, play, dispatch){
+  let pos2 = {i: play.i, j: play.j}
+  let pos1 = {i: current.x, j: current.y}
   switch(play.type){
     case "MOVE": case "PRISE":
-      let pos2 = {i: play.i, j: play.j}
-      let pos1 = {i: current.x, j: current.y}
-      return movePiece(pos1, pos2)
+      dispatch(movePiece(pos1, pos2))
+    break
     case "ROQUE_KING":
-      return roqueKing(player)
+      dispatch(roqueKing(player))
+    break
     case "ROQUE_QUEEN":
-      return roqueQueen(player)
-
+      dispatch(roqueQueen(player))
+    break
+    case "BIGSTART":
+      dispatch(movePiece(pos1, pos2))
+      dispatch(setEnPassant(player, pos2.j))
+    break
+    case "PRISE_EN_PASSANT":
+      dispatch(priseEnPassant(pos1, pos2))
+    break
     default:
   }
 }
@@ -56,7 +65,7 @@ export function playMiddleware(x,y){
     else if ((board[x][y].army === "empty" || board[x][y].army === get_opponent(player)) && currentCell.army === player){
       let index = findPlay(x, y, playList)
       if (index !== -1){
-        dispatch(makePlay(player, currentSelected, playList[index]))
+        makePlay(player, currentSelected, playList[index], dispatch)
         dispatch(nexTurn())
       }
       dispatch(clearPlayList())

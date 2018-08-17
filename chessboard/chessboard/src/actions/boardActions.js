@@ -8,6 +8,16 @@ export function movePiece(pos1, pos2){
   }
 }
 
+export function priseEnPassant(pos1, pos2){
+  return {
+    type: "PRISE_EN_PASSANT",
+    payload:{
+      pos1: pos1,
+      pos2: pos2
+    }
+  }
+}
+
 export function roqueQueen(player){
   return {
     type: "ROQUE_QUEEN",

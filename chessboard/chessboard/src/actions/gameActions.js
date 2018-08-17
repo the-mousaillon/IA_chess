@@ -16,6 +16,16 @@ export function setAvailablePlays(playList){
   }
 }
 
+export function setEnPassant(player, y){
+  return {
+    type: "SET_EN_PASSANT",
+    payload:{
+      player: player,
+      j: y
+    }
+  }
+}
+
 export function nexTurn(){
   return {
     type: "NEXT_TURN"
