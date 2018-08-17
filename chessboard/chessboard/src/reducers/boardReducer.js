@@ -110,6 +110,16 @@ export function movePiece(board, pos1, pos2){
   return new_board
 }
 
+export function priseEnPassant(board, pos1, pos2){
+  let new_board = copyArray(board)
+  new_board[pos2.i][pos2.j].piece = new_board[pos1.i][pos1.j].piece
+  new_board[pos2.i][pos2.j].army = new_board[pos1.i][pos1.j].army
+  new_board[pos1.i][pos2.j].piece = "empty"
+  new_board[pos1.i][pos2.j].army = "empty"
+  new_board[pos1.i][pos1.j].piece = "empty"
+  new_board[pos1.i][pos1.j].army = "empty"
+  return new_board
+}
 
 export function roqueQueen(board, player){
   let new_board = copyArray(board)
@@ -198,6 +208,10 @@ const boardReducer = (state=initialState, action) => {
 
     case "ROQUE_QUEEN":
       new_board = roqueQueen(state.board, action.payload.player)
+      return { ...state, board: new_board }
+
+    case "PRISE_EN_PASSANT":
+      new_board = priseEnPassant(state.board, action.payload.pos1, action.payload.pos2)
       return { ...state, board: new_board }
 
     case "PAWN_UPGRADE":

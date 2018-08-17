@@ -1,7 +1,7 @@
 ///////// Travel patterns ///////////
 // Réécriture des travels patterns de façon récursive (plus prorpe)
 
-import { checkForMate } from './playValidity'
+import { checkForMate, canRoque } from './playValidity'
 import store from '../../store'
 
 function get_playType(player, board, x, y){
@@ -109,7 +109,8 @@ export function pawnPattern(player, board, x, y){
   let bigStartLine
   let enPassantLine
   let verticalInfo = store.getState().game.playerProps[player].verticalInfo
-  let enPassantPos = store.getState().game.playerProps[player].verticalInfo
+  let enPassantPos = store.getState().game.playerProps[get_opponent(player)].enPassant
+  console.log("enPassant --> ", enPassantPos )
   if (verticalInfo.position === "bot"){
     bigStartLine = 6
     enPassantLine = 3
@@ -122,7 +123,7 @@ export function pawnPattern(player, board, x, y){
   pawntravel(player, board, x, y, verticalInfo, playList)
 
   if (x === bigStartLine && board[x+2*verticalInfo.multiplier][y].army === "empty" && board[x+verticalInfo.multiplier][y].army === "empty")
-    playList.push({i:x+2*verticalInfo.multiplier, j:y, type: "MOVE"})
+    playList.push({i:x+2*verticalInfo.multiplier, j:y, type: "BIGSTART"})
 
   if (x === enPassantLine && enPassantPos !== null){
     if (y-1 === enPassantPos){
@@ -138,7 +139,23 @@ export function pawnPattern(player, board, x, y){
 }
 
 function roquePattern(player, board, x, y, playList){
-  
+  let roque_king_cond = canRoque(player, board, "ROQUE_KING")
+  let roque_queen_cond = canRoque(player, board, "ROQUE_QUEEN")
+  if (roque_king_cond){
+    let king_l1 = {i: x, j: y+1, type: "MOVE"}
+    let king_l2 = {i: x, j: y+2, type: "MOVE"}
+    if (checkForMate(player, board, king_l1) && checkForMate(player, board, king_l2))
+      playList.push({i: x, j: y+2, type: "ROQUE_KING"})
+  }
+  if (roque_queen_cond){
+    let king_r1 = {i: x, j: y-1, type: "MOVE"}
+    let king_r2 = {i: x, j: y-2, type: "MOVE"}
+    let king_r3 = {i: x, j: y-3, type: "MOVE"}
+    if (checkForMate(player, board, king_r1) && checkForMate(player, board, king_r2)
+    && checkForMate(player, board, king_r3))
+      playList.push({i: x, j: y-2, type: "ROQUE_QUEEN"})
+  }
+
 }
 
 export function kingPattern(player, board, x, y){
