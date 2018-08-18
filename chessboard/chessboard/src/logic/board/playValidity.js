@@ -15,7 +15,7 @@ function emulatePlay(player, board, current, play){
   let pos2 = {i: play.i, j: play.j}
   let pos1 = {i: current.x, j: current.y}
   switch(play.type){
-    case "MOVE": case "PRISE": case "BIGSTART":
+    case "MOVE": case "PRISE": case "BIGSTART": case "MOVE_PAWNUPGRADE": case "PRISE_PAWNUPGRADE":
       return movePiece(board, pos1, pos2)
     case "ROQUE_KING":
       return roqueKing(board, player)

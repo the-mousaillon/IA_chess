@@ -85,20 +85,26 @@ function diagPattern(player, board, x, y){
   return filterMate(player, board, playList)
 }
 
+function checkForUpgrade(play, upgradeLine){
+  if (play.i === upgradeLine)
+    return {...play, type: play.type + "_PAWNUPGRADE"}
+  else
+    return play
+}
 
-function pawntravel(player, board, x, y, verticalInfo, playList){
+function pawntravel(player, board, x, y, verticalInfo, playList, upgradeLine){
   let opponent = get_opponent(player)
   if (board[x+verticalInfo.multiplier][y].army === "empty")
-    playList.push({i:x+verticalInfo.multiplier, j:y, type: "MOVE"})
+    playList.push(checkForUpgrade({i:x+verticalInfo.multiplier, j:y, type: "MOVE"}, upgradeLine))
 
   if (y<7){
     if (board[x+verticalInfo.multiplier][y+1].army === opponent)
-      playList.push({i:x+verticalInfo.multiplier, j:y+1, type: "PRISE"})
+      playList.push(checkForUpgrade({i:x+verticalInfo.multiplier, j:y+1, type: "PRISE"}, upgradeLine))
   }
 
   if (y>0){
     if (board[x+verticalInfo.multiplier][y-1].army === opponent)
-      playList.push({i:x+verticalInfo.multiplier, j:y-1, type: "PRISE"})
+      playList.push(checkForUpgrade({i:x+verticalInfo.multiplier, j:y-1, type: "PRISE"}, upgradeLine))
   }
 }
 
@@ -108,19 +114,22 @@ export function pawnPattern(player, board, x, y){
     return playList
   let bigStartLine
   let enPassantLine
+  let upgradeLine
   let verticalInfo = store.getState().game.playerProps[player].verticalInfo
   let enPassantPos = store.getState().game.playerProps[get_opponent(player)].enPassant
   console.log("enPassant --> ", enPassantPos )
   if (verticalInfo.position === "bot"){
     bigStartLine = 6
     enPassantLine = 3
+    upgradeLine = 0
   }
   else{
     bigStartLine = 1
     enPassantLine = 4
+    upgradeLine = 7
   }
 
-  pawntravel(player, board, x, y, verticalInfo, playList)
+  pawntravel(player, board, x, y, verticalInfo, playList, upgradeLine)
 
   if (x === bigStartLine && board[x+2*verticalInfo.multiplier][y].army === "empty" && board[x+verticalInfo.multiplier][y].army === "empty")
     playList.push({i:x+2*verticalInfo.multiplier, j:y, type: "BIGSTART"})

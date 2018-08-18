@@ -193,6 +193,13 @@ function clearPlayList(board, playList){
   return new_board
 }
 
+function upgradePiece(board, action){
+  let new_board = copyArray(board)
+  console.log("upgrade action --> ", action)
+  new_board[action.payload.coord.i][action.payload.coord.j].piece = action.payload.pieceType
+  return new_board
+}
+
 const boardReducer = (state=initialState, action) => {
   let new_board;
   switch(action.type){
@@ -215,7 +222,7 @@ const boardReducer = (state=initialState, action) => {
       return { ...state, board: new_board }
 
     case "PAWN_UPGRADE":
-      new_board = movePiece(state.board, action.payload.pos1, action.payload.pos2)
+      new_board = upgradePiece(state.board, action)
       return { ...state, board: new_board }
 
     case "APPLY_PLAYLIST":

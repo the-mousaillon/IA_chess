@@ -19,10 +19,6 @@ class Cell extends Component {
   handleClick(e) {
     let rowindex = this.props.rowindex
     let colindex = this.props.colindex
-    let pos1 = {i: 0, j: 3}
-    let pos2 = {i: rowindex, j: colindex}
-    let action = {type: "ROQUE_KING", payload: {player : "white"}}
-    let cell = this.props.board[this.props.rowindex][this.props.colindex]
     e.preventDefault();
     e.stopPropagation();
     this.props.dispatch(playMiddleware(rowindex, colindex))

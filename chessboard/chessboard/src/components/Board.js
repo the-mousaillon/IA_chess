@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './Board.css';
 import Cell from './Cell.js';
+import UpgradeBox from './UpgradeBox';
+
 
 @connect((store) => {
   return{
@@ -20,8 +22,12 @@ class Board extends Component {
 
   render() {
     return (
-      <div className = "board">
-        { this.renderBoard() }
+      <div>
+        <UpgradeBox />
+        <div className = "board">
+          { this.renderBoard() }
+        </div>
+        <UpgradeBox />
       </div>
     );
   }
