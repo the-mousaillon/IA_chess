@@ -26,6 +26,16 @@ export function setEnPassant(player, y){
   }
 }
 
+export function setUpgrade(player, pos){
+  return {
+    type: "SET_UPGRADE",
+    payload:{
+      player: player,
+      pos: pos
+    }
+  }
+}
+
 export function nexTurn(){
   return {
     type: "NEXT_TURN"

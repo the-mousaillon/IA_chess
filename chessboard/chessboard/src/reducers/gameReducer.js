@@ -9,13 +9,15 @@ const initialState = {
       isChecked: false,
       canRoque: {king :true, queen: true},
       verticalInfo: {position: "bot", multiplier: -1},
-      enPassant: null
+      enPassant: null,
+      upgrade: null
     },
     black:{
       isChecked: false,
       canRoque: {king :true, queen: true},
       verticalInfo: {position: "top", multiplier: 1},
-      enPassant: null
+      enPassant: null,
+      upgrade: null
     }
   }
 }
@@ -25,6 +27,14 @@ function setEnPassant(state, action){
   newprops[action.payload.player].enPassant = action.payload.j
   return newprops
 }
+
+
+function setUpgrade(state, action){
+  let newprops = {...state.playerProps }
+  newprops[action.payload.player].upgrade = action.payload.pos
+  return newprops
+}
+
 
 const gameReducer = (state=initialState, action) => {
   switch(action.type){
@@ -37,6 +47,9 @@ const gameReducer = (state=initialState, action) => {
 
     case "SET_EN_PASSANT":
       return {...state, playerProps: setEnPassant(state, action)}
+
+    case "SET_UPGRADE":
+      return {...state, playerProps: setUpgrade(state, action)}
 
     case "NEXT_TURN":
       let opponent
