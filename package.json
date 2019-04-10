@@ -1,0 +1,19 @@
+{
+  "name": "stupid_chess",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Themousaillon/IA_chess.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Themousaillon/IA_chess/issues"
+  },
+  "homepage": "https://github.com/Themousaillon/IA_chess#readme"
+}

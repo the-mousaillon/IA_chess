@@ -1,6 +1,6 @@
 {
   "presets": ["env", "react"],
-  "plugins": ["transform-decorators-legacy", "transform-es2015-arrow-functions",
+  "plugins": ["@babel/plugin-proposal-decorators", "transform-decorators-legacy", "transform-es2015-arrow-functions",
     "transform-class-properties",
   "transform-object-rest-spread"]
 }
