@@ -5,3 +5,5 @@
 .metals
 target
 *.DS_Store
+*.ensime
+*.DS_Store1

@@ -14,30 +14,35 @@ trait Piece{
     val travelPatterns = Travel(coord, faction)
     def updateCoord(c: Coord) : Piece = ???
     def getMoves(board: Board): List[Play] = ???
+    def prettyPrint : String = ???
 }
 
 case class Knight(faction: Faction, coord: Coord) extends Piece {
     override def updateCoord(c: Coord) : Piece = Knight(faction, c)
     override def getMoves(board: Board) : List[Play] = (travelPatterns.knightDirs) map (travelPatterns.travelOnce(this, board)) flatten
     override def toString = "N" + coord.toPng
+    override def prettyPrint: String = {faction match {case White => "♞" case _ => "♘"}}
 }
 
 case class Queen(faction: Faction, coord: Coord) extends Piece {
     override def updateCoord(c: Coord) : Piece = Queen(faction, c)
     override def getMoves(board: Board) : List[Play] = travelPatterns.diag(this, board) ::: travelPatterns.line(this, board)
     override def toString = "Q" + coord.toPng
+    override def prettyPrint: String = {faction match {case White => "♛" case _ => "♕"}}
 }
 
 case class Bishop(faction: Faction, coord: Coord) extends Piece {
     override def updateCoord(c: Coord) : Piece = Bishop(faction, c)
     override def getMoves(board: Board) : List[Play] = travelPatterns.diag(this, board)
     override def toString = "B" + coord.toPng
+    override def prettyPrint: String = {faction match {case White => "♝" case _ => "♗"}}
 }
 
 case class Rook(faction: Faction, coord: Coord, hasMoved: Boolean) extends Piece {
     override def updateCoord(c: Coord) : Piece = Rook(faction, c, true)
     override def getMoves(board: Board) : List[Play] = travelPatterns.line(this, board)
     override def toString = "R" + coord.toPng
+    override def prettyPrint: String = {faction match {case White => "♜" case _ => "♖"}}
 }
 
 case class Pawn(faction: Faction, coord: Coord, hasMoved: Boolean, enPassant: Boolean) extends Piece {
@@ -90,13 +95,16 @@ case class Pawn(faction: Faction, coord: Coord, hasMoved: Boolean, enPassant: Bo
     override def getMoves(board: Board) : List[Play] = {
         ((moveDirection :: priseDirs).flatMap(deplacement(board) _) ::: firstMove(board) ::: getEnPassant(board)).flatten
     }
-    override def toString = coord.toPng
+    override def toString = 'P' + coord.toPng
+    override def prettyPrint: String = {faction match {case White => "♟" case _ => "♙"}}
 }
 
 case class King(faction: Faction, coord: Coord, hasbeenChecked: Boolean, hasMoved: Boolean) extends Piece {
-    override def updateCoord(c: Coord) : Piece = King(faction, c, hasbeenChecked, hasMoved)
-    val queenSideRoque = faction match {case White => travelPatterns.left case _ =>  travelPatterns.right}
-    val kingSideRoque = faction match {case White => travelPatterns.right case _ =>  travelPatterns.left}
+    override def updateCoord(c: Coord) : Piece = King(faction, c, hasbeenChecked, true)
+    def updateCheckStatus = King(faction, coord, true, hasMoved)
+
+    val queenSideRoque = travelPatterns.right
+    val kingSideRoque = travelPatterns.left
 
     def getRoquePlays(board: Board) : List[Play] = {
         @tailrec
@@ -119,4 +127,5 @@ case class King(faction: Faction, coord: Coord, hasbeenChecked: Boolean, hasMove
         (acc, dir) => acc || travelPatterns.checkForMateTravel(this, board)(dir)
     )
     override def toString = "K" + coord.toPng
+    override def prettyPrint: String = {faction match {case White => "♚" case _ => "♔"}}
 }
