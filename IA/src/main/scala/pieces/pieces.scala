@@ -79,7 +79,7 @@ case class Pawn(faction: Faction, coord: Coord, hasMoved: Boolean, enPassant: Bo
     
     def deplacement(board: Board)(direction: Direction) : List[Option[Play]] = (priseDirs.contains(direction), direction, board.getPiece(direction(coord))) match {
         case (_, `moveDirection` | `moveDirection2`, None) => upgradeOrMove(direction)
-        case (true, _, Some(Pawn(`ennemyFaction`, _, _, _))) => List(Some(Prise(this, direction(coord))))
+        case (true, _, Some(p: Piece)) if (p.faction != faction) => List(Some(Prise(this, direction(coord))))
         case _ => List[Option[Play]]()
     }
 
