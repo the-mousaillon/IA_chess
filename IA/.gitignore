@@ -1,0 +1,7 @@
+# ignore all .class files
+*.class
+.bloop
+.ensime_cache
+.metals
+target
+*.DS_Store
