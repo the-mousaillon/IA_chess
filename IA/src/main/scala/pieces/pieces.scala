@@ -63,7 +63,7 @@ case class Pawn(faction: Faction, coord: Coord, hasMoved: Boolean, enPassant: Bo
     }
 
     val firstMove = (board: Board) => hasMoved match {
-        case false => deplacement(board)(moveDirection2)
+        case false if (board.getPiece(moveDirection(coord)) != None) => deplacement(board)(moveDirection2)
         case _ => List[Option[Play]]()
     }
 
@@ -73,19 +73,25 @@ case class Pawn(faction: Faction, coord: Coord, hasMoved: Boolean, enPassant: Bo
     )
 
     val upgradeOrMove = (direction : Direction) => if (direction(coord).x == 0 || direction(coord).x == 7) 
-                                                            genUpgrades(direction)
-                                                          else  
-                                                            List(Some(Move(this, direction(coord))))
+                                                        genUpgrades(direction)
+                                                    else  
+                                                        List(Some(Move(faction, this, direction(coord))))
     
+    val upgradeOrTake = (direction : Direction) => if (direction(coord).x == 0 || direction(coord).x == 7) 
+                                                        genUpgrades(direction)
+                                                    else  
+                                                        List(Some(Prise(faction, this, direction(coord))))                                                           
+                                                            
     def deplacement(board: Board)(direction: Direction) : List[Option[Play]] = (priseDirs.contains(direction), direction, board.getPiece(direction(coord))) match {
         case (_, `moveDirection` | `moveDirection2`, None) => upgradeOrMove(direction)
-        case (true, _, Some(p: Piece)) if (p.faction != faction) => List(Some(Prise(this, direction(coord))))
+        case (true, _, Some(p: Piece)) if (p.faction != faction) => upgradeOrTake(direction)
         case _ => List[Option[Play]]()
     }
 
     def getEnPassant(board: Board) : List[Option[Play]] = {
-        def sub(board: Board)(direction: Direction) : Option[Play] = (canEnPassant, board.getPiece(direction(coord))) match {
-            case (true, Some(Pawn(`ennemyFaction`, _, _, true))) => Some(PriseEnPassant(this, moveDirection(direction(coord))))
+        def sub(board: Board)(direction: Direction) : Option[Play] = 
+        (canEnPassant, board.getPiece(direction(coord)), board.getPiece(moveDirection(direction(coord)))) match {
+            case (true, Some(Pawn(`ennemyFaction`, _, _, true)), None) => Some(PriseEnPassant(faction, this, moveDirection(direction(coord))))
             case _ => None
         }
         List(travelPatterns.right, travelPatterns.left).map(sub(board) _ )
@@ -103,20 +109,20 @@ case class King(faction: Faction, coord: Coord, hasbeenChecked: Boolean, hasMove
     override def updateCoord(c: Coord) : Piece = King(faction, c, hasbeenChecked, true)
     def updateCheckStatus = King(faction, coord, true, hasMoved)
 
-    val queenSideRoque = travelPatterns.right
-    val kingSideRoque = travelPatterns.left
+    val queenSideRoque = travelPatterns.left
+    val kingSideRoque = travelPatterns.right
 
     def getRoquePlays(board: Board) : List[Play] = {
         @tailrec
-        def sub(currentPos: Coord)(direction: Direction) : Option[Play] = (direction, board.getPiece(currentPos)) match {
-            case (`kingSideRoque`, Some(Rook(`faction`, _, false))) => Some(RoqueKing(faction, this, board getPiece currentPos get))
-            case (`queenSideRoque`, Some(Rook(`faction`, _, false))) => Some(RoqueQueen(faction, this, board getPiece currentPos get))
-            case (_, None) => sub(direction(currentPos))(direction)
+        def sub(currentPos: Coord)(direction: Direction) : Option[Play] = (direction, currentPos.outOfBounds, board.getPiece(currentPos), updateCoord(currentPos)) match {
+            case (`kingSideRoque`, false, Some(r @ Rook(`faction`, _, false)), _) => Some(RoqueKing(faction, this, r))
+            case (`queenSideRoque`, false, Some(r @ Rook(`faction`, _, false)), _) => Some(RoqueQueen(faction, this, r))
+            case (_, false, None, k: King) if (!k.checkMated(board))=> sub(direction(currentPos))(direction)
             case _ => None
         }
-        
-        if (!hasbeenChecked)
-            List(queenSideRoque, kingSideRoque).map(dir => sub(dir(coord))(dir)).flatten
+
+        if (!hasbeenChecked && !hasMoved)
+            List(queenSideRoque, kingSideRoque).flatMap(dir => sub(dir(coord))(dir))
         else
             List()
     }

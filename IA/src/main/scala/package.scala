@@ -41,7 +41,5 @@ package object chess{
         board.Board(whiteBigPieces ++ pawnRow(pieces.White) ++ pawnRow(pieces.Black) ++ blackBigPieces)
     }
     val initialBoard = initialiseBoard
+    val initialGame = game.Game(pieces.White, List(play.AppliedPlay(play.NoPlay(pieces.Black), initialBoard)))
 }
-
-
-

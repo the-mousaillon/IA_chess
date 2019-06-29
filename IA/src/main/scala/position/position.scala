@@ -43,10 +43,10 @@ case class Travel(pos:Coord, faction:Faction){
     def travel(piece: Piece, board: Board)(direction: Direction): List[Play] = {
         @tailrec
         def sub(currentPos: Coord, travelList: List[Play]) : List[Play] = (currentPos.outOfBounds, board.getPiece(currentPos)) match {
-            case (false, None) => sub(direction(currentPos), Move(piece, currentPos) :: travelList)
+            case (false, None) => sub(direction(currentPos), Move(piece.faction, piece, currentPos) :: travelList)
             case (false, Some(p: Piece)) =>  p.faction match {
                 case `faction` => travelList
-                case _ => Prise(piece, currentPos) :: travelList
+                case _ => Prise(piece.faction, piece, currentPos) :: travelList
             }
             case _ => travelList
         }
@@ -54,10 +54,10 @@ case class Travel(pos:Coord, faction:Faction){
     }
     
     def travelOnce(piece: Piece, board:Board)(direction: Direction): Option[Play] = (direction(piece.coord).outOfBounds, board.getPiece(direction(piece.coord))) match {
-        case (false, None) => Some(Move(piece, direction(piece.coord)))
+        case (false, None) => Some(Move(piece.faction, piece, direction(piece.coord)))
         case (false, Some(p: Piece)) =>  p.faction match {
             case `faction` => None
-            case _ => Some(Prise(piece, direction(piece.coord)))
+            case _ => Some(Prise(piece.faction, piece, direction(piece.coord)))
         }
         case _ => None
     }
@@ -77,16 +77,19 @@ case class Travel(pos:Coord, faction:Faction){
         sub(direction(king.coord))
     }
 
+    val isPawnThreat = (king: Piece, pawn: Piece) => math.abs(pawn.coord.x - king.coord.x) == 1 &&
+                                                     math.abs(pawn.coord.y - king.coord.y) == 1 
+
     def threatenned(king: Piece, threat: Piece, direction : Direction) : Boolean = (direction, threat) match{
         case (lines @ (`up` | `down` | `right` | `left`), lineThreats @ (_:Queen | _:Rook))                  => true
         case (diags @ (`upRight` | `downRight` | `downLeft` | `upLeft`), diagThreats @ (_:Queen | _:Bishop)) => true
-        case (_, p: Pawn) if ((dist(king.coord, p.coord) == 1) && p.priseDirs.contains(direction))           => true
+        case (_, p: Pawn) if (isPawnThreat(king, p))                                                         => true
         case (_, k: King) if (dist(king.coord, k.coord) == 1)                                                => true
         case _                                                                                               => false
     }
 
     val isAnOpponentKnight = (p: Option[Piece], opponentFaction: Faction) => p match {
-        case Some(Knight(opponentFaction, _)) => true
+        case Some(Knight(`opponentFaction`, _)) => true
         case _ => false
     }
 
@@ -94,9 +97,9 @@ case class Travel(pos:Coord, faction:Faction){
         (acc, dir) => acc || isAnOpponentKnight (board getPiece dir(king.coord), !king.faction)
     )
 
-    val diag = (piece: Piece, board:Board) => List(upLeft, upRight, downLeft, downRight).map(travel(piece, board)).flatten
+    val diag = (piece: Piece, board:Board) => List(upLeft, upRight, downLeft, downRight).flatMap(travel(piece, board))
 
-    val line = (piece: Piece, board:Board) => List(left, right, down, up).map(travel(piece, board)).flatten
+    val line = (piece: Piece, board:Board) => List(left, right, down, up).flatMap(travel(piece, board))
 
-    val allDirectionsOnce = (piece: Piece, board:Board) => allDirections.map(travelOnce(piece, board)).flatten
+    val allDirectionsOnce = (piece: Piece, board:Board) => allDirections.flatMap(travelOnce(piece, board))
 }
